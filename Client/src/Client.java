@@ -40,11 +40,12 @@ public class Client
             System.out.println("Please give time \"dd-M-yyyy HH:mm:ss\": ");
             line = terminalinput.readLine();
             Date newdate = parse(line, DatePattern);
+            validatetime(newdate);
             socketout.writeUTF(line);
             System.out.println(socketin.readUTF());
             return;
         }
-        catch(IOException | ParseException i)
+        catch(IOException | ParseException | TimeFromPastException i)
         {
             System.out.println(i);
         }
@@ -66,6 +67,22 @@ public class Client
         Date newdate = dateformat.parse(line);
         return newdate;
     }
+    public static class TimeFromPastException extends Exception
+    {
+        public TimeFromPastException()
+        {
+            super("You gave time form past.");
+        }
+    }
+    public void validatetime(Date date)throws TimeFromPastException
+    {
+        Date now = new Date(System.currentTimeMillis());
+        if(date.before(now)){
+            throw new TimeFromPastException();
+        }
+        return;
+    }
+
     public static void main(String args[])
     {
         Client client = new Client("192.168.56.1", 5000);
